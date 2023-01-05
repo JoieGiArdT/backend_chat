@@ -1,14 +1,33 @@
-import express from "express";
+import { Router } from 'express';
+import WhatsappController from '../controllers/whatsapp.controller';
+//import { LessonValidator, lessonSchema } from '../validators/lessonValidator';
 
-const router = express.Router();
+/* class WhatsappRoutes {
+  router = Router();
+  whatsappController = new WhatsappController();
+  lessonValidator = new LessonValidator();
 
-router
-.get("/", (_req, res) => {
-    res.send("HwwOla")
-})
-.post("/", (_req, res) => {
-    res.send("HOla")
-})
+  constructor() {
+    this.intializeRoutes();
+  }
 
+  intializeRoutes() {
+    this.router.route('/').get(this.lessonsCtrl.getAllLessons);
+    this.router.route('/course/:id')
+      .get(this.lessonsCtrl.getLessonByCourse);
+    this.router.route('/:id').get(this.lessonsCtrl.getLessonById);
+    this.router.route('/')
+      .post(
+        this.lessonValidator.validateBody(lessonSchema),
+        this.lessonsCtrl.createLesson
+      );
+    this.router.route('/:id')
+      .put(
+        this.lessonValidator.validateBody(lessonSchema),
+        this.lessonsCtrl.updateLesson
+      );
+    this.router.route('/:id').delete(this.lessonsCtrl.deleteLesson);
+  }
+}
 
-export default router
+export default new LessonRoutes().router; */

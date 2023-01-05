@@ -1,14 +1,17 @@
-import express from "express";
+import { Request, Response, Router } from "express";
 
-const router = express.Router();
+class WhatsappRoutes {
+  router: Router = Router();
+  constructor() {
+    this.intializeRoutes();
+  }
 
-router
-.get("/", (_req, res) => {
-    res.send("HOla")
-})
-.post("/", (_req, res) => {
-    res.send("HOla")
-})
+  intializeRoutes() {
+    this.router.route("/mira").get((_req: Request, res: Response) => {
+      res.send({ data: "Hola" });
+    });
+  }
+}
 
-
-export default router
+const router = (new WhatsappRoutes()).router;
+export{router}

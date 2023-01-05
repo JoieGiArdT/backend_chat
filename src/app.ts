@@ -1,4 +1,5 @@
 import Routes from "./infrastructure/routes/index.routes";
+import cors from "cors";
 //import * as dialogflow from "@google-cloud/dialogflow";
 import { Application, urlencoded, json } from 'express';
 /* import * as morgan from 'morgan';
@@ -21,6 +22,9 @@ export default class Server {
     ); */
     //app.use(morgan('combined', { stream: accessLogStream }));
     app.use(urlencoded({ extended: true }));
+    /* app.use(cors({
+      origin: '*'
+    })); */
     app.use(json());
   }
 }

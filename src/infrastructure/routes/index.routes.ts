@@ -1,11 +1,27 @@
-import { Application } from 'express';
-import whatsappRoutes from './whatsapp.routes';
-import messagesRoutes from './messages.routes';
+import { Router, Application } from 'express';
+import { readdirSync } from "fs";
 
 export default class Routes {
+  PATH_ROUTER = `${__dirname}`;
+  router = Router();
 
   constructor(app: Application) {
-    app.use('/v1/whatsapp', whatsappRoutes);
-    app.use('/v1/messages', messagesRoutes);
+    this.intializeRoutes(app);
+  }
+
+  intializeRoutes(app: Application) {
+    readdirSync(this.PATH_ROUTER).filter((fileName) => {
+      const route = this.getRouteName(fileName);
+      if (route !== "index") {
+        import(`./${route}.routes`).then((moduleRouter) => {
+          app.use(`/${route}`, moduleRouter.router );
+        }); 
+      }
+    });
+    
+  }
+
+  getRouteName(fileName: String){
+    return fileName.split(".").shift();
   }
 }
