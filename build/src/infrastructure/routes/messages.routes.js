@@ -1,15 +1,17 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const router = express_1.default.Router();
-router
-    .get("/", (_req, res) => {
-    res.send("HOla");
-})
-    .post("/", (_req, res) => {
-    res.send("HOla");
-});
-exports.default = router;
+exports.router = void 0;
+const express_1 = require("express");
+class WhatsappRoutes {
+    constructor() {
+        this.router = (0, express_1.Router)();
+        this.intializeRoutes();
+    }
+    intializeRoutes() {
+        this.router.route("/mira").get((_req, res) => {
+            res.send({ data: "Hola" });
+        });
+    }
+}
+const router = (new WhatsappRoutes()).router;
+exports.router = router;

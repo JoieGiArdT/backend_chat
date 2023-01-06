@@ -1,33 +1,22 @@
-import { Router } from 'express';
-import WhatsappController from '../controllers/whatsapp.controller';
-//import { LessonValidator, lessonSchema } from '../validators/lessonValidator';
+import { Router } from "express";
+import WhatsappController from "../controllers/whatsapp.controller";
+import WhatsappValidator from "../validators/whatsapp.validator";
 
-/* class WhatsappRoutes {
-  router = Router();
+class WhatsappRoutes {
+  router: Router = Router();
+  whatsappValidator = new WhatsappValidator();
   whatsappController = new WhatsappController();
-  lessonValidator = new LessonValidator();
 
   constructor() {
     this.intializeRoutes();
   }
 
   intializeRoutes() {
-    this.router.route('/').get(this.lessonsCtrl.getAllLessons);
-    this.router.route('/course/:id')
-      .get(this.lessonsCtrl.getLessonByCourse);
-    this.router.route('/:id').get(this.lessonsCtrl.getLessonById);
-    this.router.route('/')
-      .post(
-        this.lessonValidator.validateBody(lessonSchema),
-        this.lessonsCtrl.createLesson
-      );
-    this.router.route('/:id')
-      .put(
-        this.lessonValidator.validateBody(lessonSchema),
-        this.lessonsCtrl.updateLesson
-      );
-    this.router.route('/:id').delete(this.lessonsCtrl.deleteLesson);
+    this.router.route("/").get(this.whatsappController.VerifyToken);
+    this.router.route("/").post(this.whatsappValidator.validateMessageObject(),
+      this.whatsappController.ReceivedMessage);
   }
 }
 
-export default new LessonRoutes().router; */
+const router = (new WhatsappRoutes()).router;
+export{router}

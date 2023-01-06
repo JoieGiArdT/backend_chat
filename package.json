@@ -4,9 +4,9 @@
   "main": "app.js",
   "scripts": {
     "start": "npm run transpile && node server.js",
-    "dev": "ts-node-dev server.ts",
+    "dev": "concurrently \"npm:transpile\" \"npm:serve\"",
     "lint": "ts-standard",
-    "serve": "nodemon server.js",
+    "serve": "ts-node-dev server.ts",
     "watch": "tsc -w",
     "transpile": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"

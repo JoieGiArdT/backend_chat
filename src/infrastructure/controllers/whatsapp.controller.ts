@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 
-export default class WhatsappControllers {
+export default class WhatsappController {
   constructor() {}
-  VerifyToken(req: Request, res: Response, next: NextFunction) {
+  VerifyToken(req: Request, res: Response, _next: NextFunction) {
     try {
       var accessToken = "FDSG7G98FG76F6G7GFD78H6F6F";
       var token = req.query["hub.verify_token"];
@@ -17,24 +17,18 @@ export default class WhatsappControllers {
       res.status(400).send();
     }
   }
-  /* ReceivedMessage(req: Request, res: Response, next: NextFunction) {
+  ReceivedMessage(req: Request, res: Response, _next: NextFunction) {
     try {
-      var entry = req.body["entry"][0];
-      var changes = entry["changes"][0];
-      var value = changes["value"];
-      var messageObject = value["messages"];
-      if (typeof messageObject != "undefined") {
-        var messages = messageObject[0];
-        var number = messages["from"];
-        var text = GetTextUser(messages);
-        if (text != "") {
-          SendMessage("Hola", number);
-          // dialogflow.sendToDialogFlow("Hola","123123", number);
-        }
-      }
-      res.send("EVENT_RECEIVED");
+      var messages = req.body[0];
+      var number = messages["from"];
+      // var text = GetTextUser(messages);
+      /* if (text != "") {
+        SendMessage("Hola", number);
+        // dialogflow.sendToDialogFlow("Hola","123123", number);
+      } */ 
+      res.send(number);
     } catch (e) {
       res.send("EVENT_RECEIVED");
     }
-  } */
+  }
 }

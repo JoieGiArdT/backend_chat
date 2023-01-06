@@ -23,27 +23,21 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = require("express");
-const fs_1 = require("fs");
-class Routes {
-    constructor(app) {
-        this.PATH_ROUTER = `${__dirname}`;
-        this.router = (0, express_1.Router)();
-        this.intializeRoutes(app);
-    }
-    intializeRoutes(app) {
-        (0, fs_1.readdirSync)(this.PATH_ROUTER).filter((fileName) => {
-            var _a;
-            const route = this.getRouteName(fileName);
-            if (route !== "index") {
-                (_a = `./${route}.routes`, Promise.resolve().then(() => __importStar(require(_a)))).then((moduleRouter) => {
-                    app.use(`/${route}`, moduleRouter.router);
-                });
-            }
-        });
-    }
-    getRouteName(fileName) {
-        return fileName.split(".").shift();
-    }
+exports.apiErrorHandler = exports.unCoughtErrorHandler = void 0;
+const winston = __importStar(require("winston"));
+const file = new winston.transports.File({
+    filename: '../logs/error.log',
+    level: 'error',
+    handleExceptions: true,
+});
+function unCoughtErrorHandler(err, req, res, next) {
+    winston.error(JSON.stringify(err));
+    res.end({ error: err });
 }
-exports.default = Routes;
+exports.unCoughtErrorHandler = unCoughtErrorHandler;
+function apiErrorHandler(err, req, res, message) {
+    const error = { Message: message, Request: req, Stack: err };
+    winston.error(JSON.stringify(error));
+    res.json({ Message: message });
+}
+exports.apiErrorHandler = apiErrorHandler;

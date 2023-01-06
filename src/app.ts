@@ -22,9 +22,9 @@ export default class Server {
     ); */
     //app.use(morgan('combined', { stream: accessLogStream }));
     app.use(urlencoded({ extended: true }));
-    /* app.use(cors({
+    app.use(cors({
       origin: '*'
-    })); */
+    }));
     app.use(json());
   }
 }
