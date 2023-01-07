@@ -3,7 +3,8 @@ export interface message {
     from: string;
     timestamp: string;
     type: string;
-    textMessage?: textMessage;
+    content: object;
+    textMessage: textMessage;
     linkMessage?: linkMessage;
 }
 
@@ -14,12 +15,3 @@ interface textMessage {
 interface linkMessage {
     link: string;
 }
-
-const hola: message = {
-    message_id: "hola",
-    from: "hl",
-    timestamp: "hl",
-    type: "hl"
-} 
-
-hola.body
