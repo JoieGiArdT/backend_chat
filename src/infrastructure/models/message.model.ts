@@ -3,10 +3,6 @@ import { Schema, model } from 'mongoose'
 
 const MessageSchema: Schema<Message> = new Schema<Message>(
   {
-    message_id: {
-      required: true,
-      type: String
-    },
     conversation_id: {
       required: true,
       type: String

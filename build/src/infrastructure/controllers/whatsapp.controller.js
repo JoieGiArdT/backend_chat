@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const message_service_1 = __importDefault(require("../services/message.service"));
 const whatsapp_service_1 = __importDefault(require("../services/whatsapp.service"));
 class WhatsappController {
     verifyToken({ query }, res, _next) {
@@ -21,8 +22,9 @@ class WhatsappController {
     }
     receivedMessageWhatsapp({ body }, res, _next) {
         try {
-            body = whatsapp_service_1.default.receivedMessageWhatsapp(body);
-            res.send(body);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const response = message_service_1.default.SaveMessage(whatsapp_service_1.default.receivedMessageWhatsapp(body));
+            res.send(message_service_1.default.getMessages);
         }
         catch (e) {
             res.send('EVENT_RECEIVED');

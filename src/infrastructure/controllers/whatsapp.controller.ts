@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
+import MessageService from '../services/message.service'
 import WhatsappService from '../services/whatsapp.service'
 
 export default class WhatsappController {
@@ -19,8 +20,11 @@ export default class WhatsappController {
 
   receivedMessageWhatsapp ({ body }: Request, res: Response, _next: NextFunction): void {
     try {
-      body = WhatsappService.receivedMessageWhatsapp(body)
-      res.send('EVENT_RECEIVED')
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const response = MessageService.SaveMessage(WhatsappService.receivedMessageWhatsapp(body))
+      MessageService.getMessages().then((value) => {
+        res.json(value)
+      }).catch((e) => console.error(e))
     } catch (e) {
       res.send('EVENT_RECEIVED')
     }

@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+// import { Request } from 'express'
 class WhatsappService {
     verifyToken(receivedToken, challenge) {
         const accessToken = String(process.env.TOKENA);
         return (challenge != null && receivedToken != null && receivedToken === accessToken) ? challenge : 'VERIFICATION_FAILED';
     }
-    receivedMessageWhatsapp({ body }) {
-        const _body = {
+    receivedMessageWhatsapp(body) {
+        return {
             exterals_id: {
                 wa_id: body.id
             },
@@ -21,7 +22,6 @@ class WhatsappService {
                 }
             }
         };
-        return _body;
     }
 }
 exports.default = new WhatsappService();

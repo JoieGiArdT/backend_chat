@@ -9,7 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DataBase = void 0;
 require("dotenv/config");
 const mongoose_1 = require("mongoose");
 class DataBase {
@@ -20,4 +19,4 @@ class DataBase {
         });
     }
 }
-exports.DataBase = DataBase;
+exports.default = new DataBase();
