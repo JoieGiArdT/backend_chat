@@ -1,28 +1,33 @@
-import { Message } from "../interface/message.interface";
-import { Schema, Types, model, Model } from "mongoose";
-import { Request, Response } from "express";
-export class MessageSchema extends Schema{
-  message: Schema<Message> = new Schema<Message>({
+import { Message } from '../interface/message.interface'
+import { Schema, model } from 'mongoose'
+
+const MessageSchema: Schema<Message> = new Schema<Message>(
+  {
     message_id: {
       required: true,
-      type: String,
+      type: String
+    },
+    conversation_id: {
+      required: true,
+      type: String
     },
     from: {
       required: true,
-      type: String,
-    },
-    timestamp: {
-      required: true,
-      type: String,
+      type: String
     },
     type: {
       required: true,
-      type: String,
+      type: String
     },
-    content: {
+    content_message: {
       required: true,
-      type: String,
-    },
-  });
-}
-// la idea es que los servicios reciban un tipo de datos como este y desde el model tenga acceso a todo
+      type: Object
+    }
+  },
+  {
+    timestamps: true,
+    versionKey: false
+  }
+)
+
+export default model('messages', MessageSchema)

@@ -1,12 +1,9 @@
-import "dotenv/config";
-import { connect } from "mongoose";
+import 'dotenv/config'
+import { connect } from 'mongoose'
 
-export default class DataBase {
-  constructor() {
-    this.connect();
-  }
-  async connect(): Promise<void> {
-    const DB_URI = <string>process.env.DB_URI;
-    await connect(DB_URI);
+export class DataBase {
+  async connectDB (): Promise<void> {
+    const DB_URI = process.env.DB_URI as string
+    await connect(DB_URI)
   }
 }

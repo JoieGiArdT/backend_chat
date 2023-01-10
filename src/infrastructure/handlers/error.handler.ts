@@ -1,29 +1,28 @@
-import { Request, Response, NextFunction } from 'express';
-import * as winston from 'winston';
+import { Request, Response } from 'express'
+import * as winston from 'winston'
 
-const file = new winston.transports.File({
+/* const file = new winston.transports.File({
   filename: '../logs/error.log',
   level: 'error',
-  handleExceptions: true,
-});
+  handleExceptions: true
+}) */
 
-export function unCoughtErrorHandler(
+export function unCoughtErrorHandler (
   err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  winston.error(JSON.stringify(err));
-  res.end({ error: err });
+  _req: Request,
+  res: Response
+): void {
+  winston.error(JSON.stringify(err))
+  res.end({ error: err })
 }
 
-export function apiErrorHandler(
+export function apiErrorHandler (
   err: any,
   req: Request,
   res: Response,
-  message: string,
-) {
-  const error: object = { Message: message, Request: req, Stack: err };
-  winston.error(JSON.stringify(error));
-  res.json({ Message: message });
+  message: string
+): void {
+  const error: object = { Message: message, Request: req, Stack: err }
+  winston.error(JSON.stringify(error))
+  res.json({ Message: message })
 }

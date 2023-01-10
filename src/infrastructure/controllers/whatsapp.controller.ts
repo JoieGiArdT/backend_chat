@@ -1,34 +1,34 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express'
+import whatsappService from '../services/whatsapp.service'
 
 export default class WhatsappController {
-  constructor() {}
-  VerifyToken(req: Request, res: Response, _next: NextFunction) {
+  VerifyToken ({ query }: Request, res: Response, _next: NextFunction): void {
     try {
-      var accessToken = "FDSG7G98FG76F6G7GFD78H6F6F";
-      var token = req.query["hub.verify_token"];
-      var challenge = req.query["hub.challenge"];
-
-      if (challenge != null && token != null && token == accessToken) {
-        res.send(challenge);
+      const verificationStatus = whatsappService.verifyToken(
+        String(query['hub.verify_token']),
+        String(query['hub.challenge']))
+      if (verificationStatus !== 'VERIFICATION_FAILED') {
+        res.send(verificationStatus)
       } else {
-        res.status(400).send();
+        res.status(400).send(verificationStatus)
       }
     } catch (error) {
-      res.status(400).send();
+      res.status(400).send()
     }
   }
-  ReceivedMessage(req: Request, res: Response, _next: NextFunction) {
+
+  ReceivedMessage (req: Request, res: Response, _next: NextFunction): void {
     try {
-      var messages = req.body[0];
-      var number = messages["from"];
+      const messages = req.body[0]
+      const number = messages.from
       // var text = GetTextUser(messages);
       /* if (text != "") {
         SendMessage("Hola", number);
         // dialogflow.sendToDialogFlow("Hola","123123", number);
-      } */ 
-      res.send(number);
+      } */
+      res.send(number)
     } catch (e) {
-      res.send("EVENT_RECEIVED");
+      res.send('EVENT_RECEIVED')
     }
   }
 }

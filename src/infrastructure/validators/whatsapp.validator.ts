@@ -1,25 +1,23 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express'
 
 interface LessonRequest extends Request {
-  value?: { body?: string };
+  value?: { body?: string }
 }
 export default class LessonValidator {
-  constructor() {}
-
-  validateMessageObject() {
+  validateMessageObject () {
     return (req: LessonRequest, res: Response, next: NextFunction) => {
       try {
-        let messageObject =
-          req.body["entry"][0]["changes"][0]["value"]["messages"];
-        if (typeof messageObject != "undefined") {
-          req.body = messageObject;
-          next("value");
+        const messageObject =
+          req.body.entry[0].changes[0].value.messages
+        if (typeof messageObject !== 'undefined') {
+          req.body = messageObject
+          next('value')
         } else {
-          throw new Error("SIN_MENSAJE");
+          throw new Error('SIN_MENSAJE')
         }
       } catch (error) {
-        res.send("EVENT_RECEIVED");
+        res.send('EVENT_RECEIVED')
       }
-    };
+    }
   }
 }

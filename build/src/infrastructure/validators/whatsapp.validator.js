@@ -1,26 +1,20 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+'use strict'
+Object.defineProperty(exports, '__esModule', { value: true })
 class LessonValidator {
-    constructor() { }
-    validateBody() {
-        return (req, res, next) => {
-            try {
-                var entry = req.body["entry"][0];
-                var changes = entry["changes"][0];
-                var value = changes["value"];
-                var messageObject = value["messages"];
-                if (typeof messageObject != "undefined") {
-                    req.body = messageObject;
-                }
-                else {
-                    throw new Error('¡Ups!');
-                }
-                next();
-            }
-            catch (error) {
-                res.send("EVENT_RECEIVEDss");
-            }
-        };
+  validateMessageObject () {
+    return (req, res, next) => {
+      try {
+        const messageObject = req.body.entry[0].changes[0].value.messages
+        if (typeof messageObject !== 'undefined') {
+          req.body = messageObject
+          next('value')
+        } else {
+          throw new Error('SIN_MENSAJE')
+        }
+      } catch (error) {
+        res.send('EVENT_RECEIVED')
+      }
     }
+  }
 }
-exports.default = LessonValidator;
+exports.default = LessonValidator
