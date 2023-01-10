@@ -1,5 +1,5 @@
 export interface User {
-  user_id: string
+  // user_id: string
   profile: Profile
   profile_wp: ProfileWp
   conversations_id: string[] | null

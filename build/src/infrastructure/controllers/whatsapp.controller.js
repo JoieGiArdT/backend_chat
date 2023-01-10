@@ -1,34 +1,32 @@
-'use strict'
-Object.defineProperty(exports, '__esModule', { value: true })
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const whatsapp_service_1 = __importDefault(require("../services/whatsapp.service"));
 class WhatsappController {
-  VerifyToken (req, res, _next) {
-    try {
-      const accessToken = 'FDSG7G98FG76F6G7GFD78H6F6F'
-      const token = req.query['hub.verify_token']
-      const challenge = req.query['hub.challenge']
-      if (challenge != null && token != null && token === accessToken) {
-        res.send(challenge)
-      } else {
-        res.status(400).send()
-      }
-    } catch (error) {
-      res.status(400).send()
+    verifyToken({ query }, res, _next) {
+        try {
+            const verificationStatus = whatsapp_service_1.default.verifyToken(String(query['hub.verify_token']), query['hub.challenge']);
+            if (verificationStatus !== 'VERIFICATION_FAILED') {
+                res.send(verificationStatus);
+            }
+            else {
+                res.status(400).send(verificationStatus);
+            }
+        }
+        catch (error) {
+            res.status(400).send();
+        }
     }
-  }
-
-  ReceivedMessage (req, res, _next) {
-    try {
-      const messages = req.body[0]
-      const number = messages.from
-      // var text = GetTextUser(messages);
-      /* if (text != "") {
-              SendMessage("Hola", number);
-              // dialogflow.sendToDialogFlow("Hola","123123", number);
-            } */
-      res.send(number)
-    } catch (e) {
-      res.send('EVENT_RECEIVED')
+    receivedMessageWhatsapp({ body }, res, _next) {
+        try {
+            body = whatsapp_service_1.default.receivedMessageWhatsapp(body);
+            res.send(body);
+        }
+        catch (e) {
+            res.send('EVENT_RECEIVED');
+        }
     }
-  }
 }
-exports.default = WhatsappController
+exports.default = WhatsappController;

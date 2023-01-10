@@ -1,10 +1,15 @@
 export interface Message {
-  message_id: string
+  // message_id: string
+  exterals_id: IdExternal | null
   conversation_id: string
   from: string
   type: string
   content_message: ContentMessage
 };
+
+interface IdExternal {
+  wa_id: string | null
+}
 
 interface ContentMessage {
   value: boolean

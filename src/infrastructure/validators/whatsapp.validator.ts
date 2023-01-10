@@ -8,10 +8,10 @@ export default class LessonValidator {
     return (req: LessonRequest, res: Response, next: NextFunction) => {
       try {
         const messageObject =
-          req.body.entry[0].changes[0].value.messages
+          req.body.entry[0].changes[0].value.messages[0]
         if (typeof messageObject !== 'undefined') {
           req.body = messageObject
-          next('value')
+          next()
         } else {
           throw new Error('SIN_MENSAJE')
         }
