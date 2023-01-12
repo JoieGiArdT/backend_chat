@@ -10,7 +10,7 @@ export default class LessonValidator {
         const messageObject =
           req.body.entry[0].changes[0].value.messages[0]
         if (typeof messageObject !== 'undefined') {
-          req.body = messageObject
+          req.body = req.body.entry[0].changes[0].value
           next()
         } else {
           throw new Error('SIN_MENSAJE')

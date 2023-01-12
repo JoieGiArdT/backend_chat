@@ -1,4 +1,4 @@
-import { Message } from '../interface/message.interface'
+import { Conversation } from '../interface/conversation.interface'
 import {
   collection,
   getDocs,
@@ -10,7 +10,7 @@ import {
 import FireStore from '../config/firebase.database'
 
 class MessageService {
-  async SaveMessage (message: Message): Promise<void> {
+  async SaveConversation (conversation: Conversation) Promise<void> {
     await addDoc(collection(FireStore.dataBase, 'messages'), Object.defineProperty(message, 'timestamp', {
       value: Timestamp.fromDate(new Date())
     }))

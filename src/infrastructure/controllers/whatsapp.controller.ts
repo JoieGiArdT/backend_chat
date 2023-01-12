@@ -20,13 +20,11 @@ export default class WhatsappController {
 
   receivedMessageWhatsapp ({ body }: Request, res: Response, _next: NextFunction): void {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const response = MessageService.SaveMessage(WhatsappService.receivedMessageWhatsapp(body))
-      MessageService.getMessages().then((value) => {
-        res.json(value)
-      }).catch((e) => console.error(e))
+      MessageService.SaveMessage(WhatsappService.receivedMessageWhatsapp(body))
+        .then(() => res.send('EVENT_RECEIVED'))
+        .catch(() => res.status(400).send('NOT_RECEIVED'))
     } catch (e) {
-      res.send('EVENT_RECEIVED')
+      res.send('NOT_RECEIVED')
     }
   }
 }

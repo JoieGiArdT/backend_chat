@@ -1,9 +1,10 @@
 export interface Message {
   // message_id: string
-  exterals_id: IdExternal | null
+  externals_id: IdExternal | null
   conversation_id: string
   from: string
   type: string
+  timestamp: number
   content_message: ContentMessage
 };
 

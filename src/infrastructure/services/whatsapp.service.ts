@@ -9,17 +9,18 @@ class WhatsappService {
 
   receivedMessageWhatsapp (body: any): Message {
     return {
-      exterals_id: {
-        wa_id: body.id
+      externals_id: {
+        wa_id: body.messages[0].id
       },
-      conversation_id: '123',
-      from: body.from,
-      type: body.type,
+      timestamp: parseInt(body.Timestamp),
+      conversation_id: body.contacts[0].wa_id,
+      from: body.messages[0].from,
+      type: body.messages[0].type,
       content_message: {
         value: true,
         text: {
           preview_url: false,
-          body: body.text.body
+          body: body.messages[0].text.body
         }
       }
     }
