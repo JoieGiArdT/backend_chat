@@ -10,10 +10,11 @@ class WhatsappService {
   receivedMessageWhatsapp (body: any): Message {
     return {
       externals_id: {
-        wa_id: body.messages[0].id
+        wa_id: body.messages[0].id,
+        conversation_wp: body.contacts[0].wa_id
       },
       timestamp: parseInt(body.Timestamp),
-      conversation_id: body.contacts[0].wa_id,
+      conversation_id: undefined,
       from: body.messages[0].from,
       type: body.messages[0].type,
       content_message: {

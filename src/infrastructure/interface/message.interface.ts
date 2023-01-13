@@ -1,7 +1,7 @@
 export interface Message {
   // message_id: string
-  externals_id: IdExternal | null
-  conversation_id: string
+  externals_id: IdExternal | undefined
+  conversation_id: string | undefined
   from: string
   type: string
   timestamp: number
@@ -9,7 +9,8 @@ export interface Message {
 };
 
 interface IdExternal {
-  wa_id: string | null
+  wa_id: string | undefined
+  conversation_wp: string | undefined
 }
 
 interface ContentMessage {

@@ -1,5 +1,4 @@
 export interface User {
-  // user_id: string
   profile: Profile
   profile_wp: ProfileWp
   conversations_id: string[] | null
@@ -14,5 +13,5 @@ interface Profile {
 
 interface ProfileWp {
   wa_id: string
-  display_name: string
+  wa_phone: string
 }

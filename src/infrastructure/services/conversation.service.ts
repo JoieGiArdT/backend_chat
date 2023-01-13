@@ -5,25 +5,27 @@ import {
   addDoc,
   query,
   where,
-  Timestamp
+  Timestamp,
+  DocumentReference
 } from 'firebase/firestore'
 import FireStore from '../config/firebase.database'
 
-class MessageService {
-  async SaveConversation (conversation: Conversation) Promise<void> {
-    await addDoc(collection(FireStore.dataBase, 'messages'), Object.defineProperty(message, 'timestamp', {
-      value: Timestamp.fromDate(new Date())
+class ConversationService {
+  async createConversation (conversation: Conversation): Promise<DocumentReference> {
+    return await addDoc(collection(FireStore.dataBase, 'messages'), Object.defineProperty(conversation, 'last_update', {
+      value: Timestamp.now
     }))
   }
 
-  async getMessagesById (id: string): Promise<object[]> {
-    const _query = query(collection(FireStore.dataBase, 'messages'), where('conversation_id', '==', id))
+  async getConversationByUserId (id: string): Promise<object[]> {
+    const _query = query(collection(FireStore.dataBase, 'conversations'), where('external_id', '==', id))
     const querySnapshot = await getDocs(_query)
-    const resultMessages: object[] = []
+    const resultConversations: object[] = []
     querySnapshot.forEach((doc) => {
-      resultMessages.push(doc.data())
+      resultConversations.push(doc.data())
     })
-    return resultMessages
+    return resultConversations
   }
 }
-export default new MessageService()
+
+export default new ConversationService()

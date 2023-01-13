@@ -1,10 +1,15 @@
 export interface Conversation {
-  // conversation_id: string
-  externals_id: IdExternal | null
-  advisers_id: string[]
-  client_id: string
+  external_id: string
+  tarjet_information: TarjetInformation
   last_message_id: string
+  last_update: string
+  status: 'SIN ASIGNACION' | 'EN PROCESO' | 'CERRADO'
+  atention_type: 'BOT' | 'ADVISER'
 }
-interface IdExternal {
-  wa_id: string
+
+interface TarjetInformation {
+  display_name: string
+  photo: string
+  to: string
+  type: string[]
 }
