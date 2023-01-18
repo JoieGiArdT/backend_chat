@@ -8,8 +8,8 @@ export interface Conversation {
 }
 
 interface TarjetInformation {
-  display_name: string
-  photo: string
+  display_name?: string
+  photo?: string
   to: string
-  type: string[]
+  type?: string[]
 }

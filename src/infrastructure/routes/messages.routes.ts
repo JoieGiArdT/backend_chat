@@ -1,15 +1,15 @@
-import { Request, Response, Router } from 'express'
+import { Router } from 'express'
+import WhatsappController from '../controllers/whatsapp.controller'
 
 class WhatsappRoutes {
   router: Router = Router()
+  whatsappController = new WhatsappController()
   constructor () {
     this.intializeRoutes()
   }
 
   intializeRoutes (): void {
-    this.router.route('/mira').get((_req: Request, res: Response) => {
-      res.send({ data: 'Hola' })
-    })
+    this.router.route('/').get(this.whatsappController.verifyToken)
   }
 }
 

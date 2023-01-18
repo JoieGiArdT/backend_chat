@@ -1,4 +1,4 @@
-import { Conversation } from '../interface/conversation.interface'
+import { Conversation } from '../types/conversation.types'
 import {
   collection,
   getDocs,

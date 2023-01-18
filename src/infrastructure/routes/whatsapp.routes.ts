@@ -13,8 +13,9 @@ class WhatsappRoutes {
 
   intializeRoutes (): void {
     this.router.route('/').get(this.whatsappController.verifyToken)
-    this.router.route('/').post(this.whatsappValidator.validateMessageObject(),
-      this.whatsappController.receivedMessageWhatsapp)
+    // this.router.route('/').post(this.whatsappValidator.validateMessageObject(),
+    //  this.whatsappController.receivedMessageWhatsapp)
+    this.router.route('/').post(this.whatsappController.receivedMessageWhatsapp)
   }
 }
 

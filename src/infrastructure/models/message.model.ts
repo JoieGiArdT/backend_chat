@@ -1,4 +1,4 @@
-import { Message } from '../interface/message.interface'
+import { Message } from '../types/message.types'
 import { Schema, model } from 'mongoose'
 
 const MessageSchema: Schema<Message> = new Schema<Message>(
