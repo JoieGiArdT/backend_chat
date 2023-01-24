@@ -1,9 +1,9 @@
 {
   "name": "backend_chat",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node ./build/server.js",
+    "start": "node ./build/index.js",
     "dev": "concurrently \"npm:transpile\" \"npm:serve\"",
     "lint": "ts-standard --fix .",
     "serve": "ts-node-dev server.ts",
@@ -44,9 +44,6 @@
   },
   "bugs": {
     "url": "https://github.com/JoieGiArdT/backend/issues"
-  },
-  "engines": {
-    "node": ">=18.0.0"
   },
   "eslintConfig": {
     "parserOptions": {
