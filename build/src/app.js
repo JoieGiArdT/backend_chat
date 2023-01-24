@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const index_routes_1 = __importDefault(require("./infrastructure/routes/index.routes"));
+const index_routes_1 = __importDefault(require("./routes/index.routes"));
 const cors_1 = __importDefault(require("cors"));
 // import * as dialogflow from "@google-cloud/dialogflow";
 const express_1 = require("express");

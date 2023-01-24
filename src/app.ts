@@ -1,4 +1,4 @@
-import Routes from './infrastructure/routes/index.routes'
+import Routes from './routes/index.routes'
 import cors from 'cors'
 // import * as dialogflow from "@google-cloud/dialogflow";
 import { Application, urlencoded, json } from 'express'
