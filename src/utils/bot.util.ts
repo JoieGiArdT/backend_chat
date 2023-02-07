@@ -59,6 +59,8 @@ class BotUtil {
               },
               type: 'text'
             }
+          } else {
+            return null
           }
         })
         return {
@@ -83,6 +85,8 @@ class BotUtil {
               },
               type: 'text'
             }
+          } else {
+            return null
           }
         })
         return {
