@@ -11,10 +11,10 @@ import {
   MediaMessage,
   TemplateComponent,
   TemplateMessage,
-  TextMessage
+  TextMessage,
+  Message
 } from '../types/whatsapp.types'
 // import { Request } from 'express'
-
 interface PaylodBase {
   messaging_product: 'whatsapp'
   recipient_type: 'individual'
@@ -45,12 +45,13 @@ class WhatsappService {
 
   async sendMessageWhatsapp (
     paramaters: any,
-    type: string,
+    typeMessage: string,
     fromPhoneNumberId: string,
-    accessToken: string
-  ): Promise<SendMessageResult> {
+    accessToken: string,
+    toNumber: string
+  ): Promise<any> {
     let callback
-    switch (type) {
+    switch (typeMessage) {
       case 'text': {
         callback = this.sendText
         break
@@ -84,37 +85,44 @@ class WhatsappService {
         break
       }
       case 'interactive':{
-        callback = this.sendTemplate
+        callback = this.sendList
         break
       }
       default:{
         throw new Error('TIPO_INCORRECTO')
       }
     }
-    const result = callback(paramaters)
-    return await this.sendRequestMessage(
-      result,
-      fromPhoneNumberId,
-      accessToken
-    )
+    const baseInfo = callback(paramaters)
+    const data: Message = {
+      ...this.payloadBase,
+      type: typeMessage,
+      to: toNumber,
+      ...baseInfo
+    }
+    return {
+      response_whatsapp: await this.sendRequestMessage(
+        data,
+        fromPhoneNumberId,
+        accessToken
+      ),
+      ...baseInfo
+    }
   }
 
   async sendRequestMessage (
-    data: any,
+    data: Message,
     fromPhoneNumberId: string,
     accessToken: string,
     version: string = 'v15.0'
   ): Promise<SendMessageResult> {
     try {
-      const { data: rawResult } = await axios({
-        method: 'post',
-        url: `https://graph.facebook.com/${version}/${fromPhoneNumberId}/messages`,
-        data,
+      const { data: rawResult } = await axios(`https://graph.facebook.com/${version}/${fromPhoneNumberId}/messages`, {
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-          Accept: 'application/json'
-        }
+          'Content-Type': 'application/json'
+        },
+        data
       })
       const result = rawResult as OfficialSendMessageResult
 
@@ -124,6 +132,7 @@ class WhatsappService {
         whatsappId: result.contacts?.[0]?.wa_id
       }
     } catch (err: unknown) {
+      console.error(err)
       // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       if ((err as any).response) {
         throw (err as AxiosError)?.response?.data
@@ -140,16 +149,11 @@ class WhatsappService {
 
   sendText (
     parameters: {
-      to: string
       text: string
       options: any
     }
   ): TextMessage {
     return {
-      messaging_product: 'whatsapp',
-      recipient_type: 'individual',
-      to: parameters.to,
-      type: 'text',
       text: {
         body: parameters.text,
         preview_url: parameters.options.preview_url
@@ -159,89 +163,65 @@ class WhatsappService {
 
   sendImage (
     parameters: {
-      to: string
       urlOrObjectId: any
       options: any
     }
   ): ImageMessage {
     return {
-      ...this.payloadBase,
-      to: parameters.to,
-      type: 'image',
       image: this.getMediaPayload(parameters.urlOrObjectId, parameters.options)
     }
   }
 
   sendDocument (
     parameters: {
-      to: string
       urlOrObjectId: any
       options: any
     }
   ): MediaMessage {
     return {
-      ...this.payloadBase,
-      to: parameters.to,
-      type: 'document',
       document: this.getMediaPayload(parameters.urlOrObjectId, parameters.options)
     }
   }
 
   sendAudio (
     parameters: {
-      to: string
       urlOrObjectId: any
     }
   ): MediaMessage {
     return {
-      ...this.payloadBase,
-      to: parameters.to,
-      type: 'audio',
       audio: this.getMediaPayload(parameters.urlOrObjectId)
     }
   }
 
   sendVideo (
     parameters: {
-      to: string
       urlOrObjectId: any
       options: any
     }
   ): MediaMessage {
     return {
-      ...this.payloadBase,
-      to: parameters.to,
-      type: 'video',
       video: this.getMediaPayload(parameters.urlOrObjectId, parameters.options)
     }
   }
 
   sendSticker (
     parameters: {
-      to: string
       urlOrObjectId: any
     }
   ): MediaMessage {
     return {
-      ...this.payloadBase,
-      to: parameters.to,
-      type: 'sticker',
       sticker: this.getMediaPayload(parameters.urlOrObjectId)
     }
   }
 
   sendLocation (
     parameters: {
-      to: string
       latitude: number
       longitude: number
       options: any
     }
   ): LocationMessage {
     return {
-      ...this.payloadBase,
-      to: parameters.to,
-      type: 'location',
       location: {
         latitude: parameters.latitude,
         longitude: parameters.longitude,
@@ -253,16 +233,12 @@ class WhatsappService {
 
   sendTemplate (
     parameters: {
-      to: string
       name: string
       languageCode: string
       components: TemplateComponent[]
     }
   ): TemplateMessage {
     return {
-      ...this.payloadBase,
-      to: parameters.to,
-      type: 'template',
       template: {
         name: parameters.name,
         language: {
@@ -275,30 +251,22 @@ class WhatsappService {
 
   sendContacts (
     parameters: {
-      to: string
       contacts: Contact[]
     }
   ): ContactMessage {
     return {
-      ...this.payloadBase,
-      to: parameters.to,
-      type: 'contacts',
       contacts: parameters.contacts
     }
   }
 
   sendReplyButtons (
     parameters: {
-      to: string
       bodyText: string
       buttons: string
       options: any
     }
   ): InteractiveMessage {
     return {
-      ...this.payloadBase,
-      to: parameters.to,
-      type: 'interactive',
       interactive: {
         body: {
           text: parameters.bodyText
@@ -326,7 +294,6 @@ class WhatsappService {
 
   sendList (
     parameters: {
-      to: string
       buttonName: string
       bodyText: string
       sections: any[]
@@ -334,9 +301,6 @@ class WhatsappService {
     }
   ): InteractiveMessage {
     return {
-      ...this.payloadBase,
-      to: parameters.to,
-      type: 'interactive',
       interactive: {
         body: {
           text: parameters.bodyText

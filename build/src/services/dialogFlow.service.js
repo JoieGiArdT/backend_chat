@@ -1,4 +1,4 @@
-"use strict";
+'use strict'
 /* import { v4 } from 'uuid'
 import 'dotenv/config'
 import dialogflow from '@google-cloud/dialogflow'

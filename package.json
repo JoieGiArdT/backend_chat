@@ -1,9 +1,9 @@
 {
   "name": "backend_chat",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node ./build/index.js",
+    "start": "node ./build/server.js",
     "dev": "concurrently \"npm:transpile\" \"npm:serve\"",
     "lint": "ts-standard --fix .",
     "serve": "ts-node-dev server.ts",

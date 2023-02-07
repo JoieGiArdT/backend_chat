@@ -4,10 +4,10 @@ export interface Message {
   from: string
   type: string
   timestamp: any
-  content_message: Text | Interactive | Image | Audio | Video | Document | Sticker | Location
+  content_message: any
 };
 
-interface Text {
+/* interface Text {
   preview_url?: boolean
   body: string
 }
@@ -44,7 +44,7 @@ interface Location {
   longitude: number
   name: string
   address: string
-}
+} */
 
 export class SchemaMessage {
   message!: Message
@@ -52,7 +52,7 @@ export class SchemaMessage {
     externalId: string,
     fromNumber: string,
     typeMessage: string,
-    contentMessage: Text | Interactive | Image | Audio | Video | Document | Sticker | Location,
+    contentMessage: any,
     conversationId?: string
   ) {
     this.message = {

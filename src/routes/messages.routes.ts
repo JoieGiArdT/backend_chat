@@ -1,15 +1,15 @@
 import { Router } from 'express'
-import WhatsappController from '../controllers/whatsapp.controller'
+import MessageController from '../controllers/message.controllers'
 
 class WhatsappRoutes {
   router: Router = Router()
-  whatsappController = new WhatsappController()
+  messageController = new MessageController()
   constructor () {
     this.intializeRoutes()
   }
 
   intializeRoutes (): void {
-    this.router.route('/').get(this.whatsappController.verifyToken)
+    this.router.route('/').post(this.messageController.sendMessage)
   }
 }
 

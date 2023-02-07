@@ -2,10 +2,11 @@ import type { RequireAtLeastOne } from 'type-fest'
 
 // https://developers.facebook.com/docs/whatsapp/cloud-api/reference/messages
 
-interface Message {
+export interface Message {
   messaging_product: 'whatsapp'
   recipient_type: 'individual'
   to: string
+  type: string
 }
 
 interface ContactName {
@@ -221,53 +222,43 @@ export interface Text {
   preview_url?: boolean
 }
 
-export interface AudioMessage extends Message {
-  type: 'audio'
+export interface AudioMessage {
   audio: Media
 }
 
-export interface ContactMessage extends Message {
-  type: 'contacts'
+export interface ContactMessage {
   contacts: Contact[]
 }
 
-export interface DocumentMessage extends Message {
-  type: 'document'
+export interface DocumentMessage {
   document: Media
 }
 
-export interface ImageMessage extends Message {
-  type: 'image'
+export interface ImageMessage {
   image: Media
 }
 
-export interface InteractiveMessage extends Message {
-  type: 'interactive'
+export interface InteractiveMessage {
   interactive: Interactive
 }
 
-export interface LocationMessage extends Message {
-  type: 'location'
+export interface LocationMessage {
   location: Location
 }
 
-export interface StickerMessage extends Message {
-  type: 'sticker'
+export interface StickerMessage {
   sticker: Media
 }
 
-export interface TemplateMessage extends Message {
-  type: 'template'
+export interface TemplateMessage {
   template: Template
 }
 
-export interface TextMessage extends Message {
-  type: 'text'
+export interface TextMessage {
   text: Text
 }
 
-export interface VideoMessage extends Message {
-  type: 'video'
+export interface VideoMessage {
   video: Media
 }
 

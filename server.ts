@@ -7,7 +7,7 @@ dotenv.config()
 const app: Application = express()
 // eslint-disable-next-line no-new
 new Server(app)
-const port: number = (process.env.PORT != null) ? parseInt(process.env.PORT, 10) : 3000
+const port: number = (process.env.PORT != null) ? parseInt(process.env.PORT, 10) : 80
 
 app
   .listen(port, 'localhost', function () {
