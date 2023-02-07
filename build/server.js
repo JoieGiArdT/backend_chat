@@ -34,9 +34,10 @@ const app = (0, express_1.default)();
 // eslint-disable-next-line no-new
 new app_1.default(app);
 const port = (process.env.PORT != null) ? parseInt(process.env.PORT, 10) : 80;
+const ip = (process.env.IP != null) ? process.env.IP : 'localhost';
 app
     .listen(port, 'localhost', function () {
-    console.info(`Server running on : http://localhost:${port}`);
+    console.info(`Server running on : http://${ip}:${port}`);
 })
     .on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
