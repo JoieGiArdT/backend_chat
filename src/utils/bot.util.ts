@@ -10,11 +10,124 @@ class BotUtil {
         callback = this.uploadImagesBot
         break
       }
+      case 'Ayuda': {
+        callback = this.createTicketBot
+        break
+      }
       default:
         return {}
     }
     return {
       ...callback(paramaters)
+    }
+  }
+
+  createTicketBot (
+    parameters: {
+      answer: number
+      response: any
+    }
+  ): any {
+    switch (parameters.answer) {
+      case 1:{
+        return {
+          parameters: {
+            buttonName: 'Tipo',
+            bodyText: 'Seleccione el departamento destino:',
+            sections: {
+              tipo: [{
+                id: 'DESO',
+                title: 'Desocupacion',
+                description: 'Seleccione esta opcion...'
+              }]
+            },
+            options: {
+              header: {
+                type: 'text',
+                text: 'Financar Sas'
+              }
+            }
+          },
+          type: 'interactive',
+          response_type: 'wp',
+          status: 'PENDING',
+          validation: 'approved'
+        }
+      }
+      case 2:{
+        let booleano = false
+        Object.entries(parameters.response).forEach(([key, _value]) => {
+          if (key === 'list') {
+            booleano = true
+          }
+        }
+        )
+        if (booleano) {
+          return {
+            parameters: {
+              text: 'Describa su solicitud:',
+              options: {
+                preview_url: false
+              }
+            },
+            type: 'text',
+            response_type: 'wp',
+            status: 'PENDING',
+            validation: 'approved',
+            content: 'Lista'
+          }
+        } else {
+          return {
+            parameters: {
+              text: 'Tickets - Porfavor seleccione un departamento.',
+              options: {
+                preview_url: false
+              }
+            },
+            type: 'text',
+            response_type: 'wp',
+            status: 'PENDING',
+            validation: 'denied'
+          }
+        }
+      }
+      case 3:{
+        let booleano = false
+        Object.entries(parameters.response).forEach(([key, _value]) => {
+          if (key === 'text') {
+            booleano = true
+          }
+        }
+        )
+        if (booleano) {
+          return {
+            parameters: {
+              text: 'Su caso fue enviado al area seleccionada.',
+              options: {
+                preview_url: false
+              }
+            },
+            type: 'text',
+            response_type: 'wp',
+            status: 'DONE',
+            validation: 'approved',
+            content: parameters.response.text.body
+          }
+        } else {
+          return {
+            parameters: {
+              text: 'Tickets - Porfavor simplemten escriba un parrafo donde describa su solicitud.',
+              options: {
+                preview_url: false
+              }
+            },
+            type: 'text',
+            response_type: 'wp',
+            status: 'PENDING',
+            validation: 'denied'
+          }
+        }
+      }
     }
   }
 
@@ -44,70 +157,113 @@ class BotUtil {
               }
             }
           },
-          type: 'interactive'
+          type: 'interactive',
+          response_type: 'wp',
+          status: 'PENDING',
+          validation: 'approved'
         }
       }
       case 2:{
-        Object.entries(parameters.response).forEach(([key, value]) => {
-          if (key === 'interactive' && value === 'perro') {
-            return {
-              parameters: {
-                text: '¿Digite el codigo del Inmueble?',
-                options: {
-                  preview_url: false
-                }
-              },
-              type: 'text'
-            }
-          } else {
-            return null
+        let booleano = false
+        Object.entries(parameters.response).forEach(([key, _value]) => {
+          if (key === 'list') {
+            booleano = true
           }
-        })
-        return {
-          parameters: {
-            text: 'Subir imagenes - Porfavor seleccione un tipo de subida.',
-            options: {
-              preview_url: false
-            }
-          },
-          type: 'text'
+        }
+        )
+        if (booleano) {
+          return {
+            parameters: {
+              text: 'Digite el codigo del Inmueble',
+              options: {
+                preview_url: false
+              }
+            },
+            type: 'text',
+            response_type: 'wp',
+            status: 'PENDING',
+            validation: 'approved',
+            content: 'Lista'
+          }
+        } else {
+          return {
+            parameters: {
+              text: 'Subir imagenes - Porfavor seleccione un tipo de subida.',
+              options: {
+                preview_url: false
+              }
+            },
+            type: 'text',
+            response_type: 'wp',
+            status: 'PENDING',
+            validation: 'denied'
+          }
         }
       }
       case 3:{
+        let booleano = false
         Object.entries(parameters.response).forEach(([key, value]) => {
-          if (key === 'text' && value === 'perro') {
-            return {
-              parameters: {
-                text: 'Las imagenes subidas a continuacion seran montadas al inmueble especificaso.',
-                options: {
-                  preview_url: false
-                }
-              },
-              type: 'text'
-            }
-          } else {
-            return null
+          const isNumeric = (n: any): boolean => !isNaN(n)
+          const objeto = value as any
+          if (key === 'text' && isNumeric(objeto.body)) {
+            booleano = true
           }
-        })
-        return {
-          parameters: {
-            text: 'Subir imagenes - Porfavor seleccione un tipo de subida.',
-            options: {
-              preview_url: false
-            }
-          },
-          type: 'text'
+        }
+        )
+        if (booleano) {
+          return {
+            parameters: {
+              text: 'Las imagenes subidas a continuacion seran montadas al inmueble especificaso.',
+              options: {
+                preview_url: false
+              }
+            },
+            type: 'text',
+            response_type: 'wp',
+            status: 'DONE',
+            validation: 'approved',
+            content: parameters.response.text.body
+          }
+        } else {
+          return {
+            parameters: {
+              text: 'Subir imagenes - Porfavor ingrese un codigo de inmueble.',
+              options: {
+                preview_url: false
+              }
+            },
+            type: 'text',
+            response_type: 'wp',
+            status: 'PENDING',
+            validation: 'denied'
+          }
         }
       }
-      default: {
-        return {
-          parameters: {
-            text: 'Subir imagenes - Puede empezar a subir fotos.',
-            options: {
-              preview_url: false
-            }
-          },
-          type: 'text'
+      case 4:{
+        let booleano = true
+        Object.entries(parameters.response).forEach(([key, value]) => {
+          if (key === 'image' && value !== null) {
+            booleano = false
+          }
+        }
+        )
+        if (booleano) {
+          return {
+            parameters: {
+              text: 'Las imagenes subidas a continuacion seran montadas al inmueble especificado.',
+              options: {
+                preview_url: false
+              }
+            },
+            type: 'text',
+            response_type: 'wp',
+            status: 'DONE'
+          }
+        } else {
+          return {
+            id_image: parameters.response.image.id,
+            response_type: 'nx'
+          }
         }
       }
     }

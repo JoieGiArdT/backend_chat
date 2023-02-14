@@ -113,7 +113,7 @@ class WhatsappService {
     data: Message,
     fromPhoneNumberId: string,
     accessToken: string,
-    version: string = 'v15.0'
+    version: string = 'v16.0'
   ): Promise<SendMessageResult> {
     try {
       const { data: rawResult } = await axios(`https://graph.facebook.com/${version}/${fromPhoneNumberId}/messages`, {
@@ -325,12 +325,29 @@ class WhatsappService {
   }
 
   getMediaPayload (urlOrObjectId: string, options?: MediaBase): Media {
-    // ...(isURL(urlOrObjectId) ? { link: urlOrObjectId } : { id: urlOrObjectId }),
     return {
       link: urlOrObjectId,
       caption: options?.caption,
       filename: options?.filename
     }
+  }
+
+  async getMediaMessage (accessToken: string,
+    objectId: string
+  ): Promise<any> {
+    const responseGetMedia = await axios(`https://graph.facebook.com/v16.0/${objectId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
+    return await axios(String(responseGetMedia.data.url), {
+      method: 'GET',
+      responseType: 'stream',
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
   }
 }
 

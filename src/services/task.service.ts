@@ -31,12 +31,10 @@ class TaskService {
 
   async updateTask (
     id: string,
-    sequenceLast: string[]
+    parameters: object
   ): Promise<void> {
     const taskRef = doc(FireStore.dataBase, 'tasks', id)
-    return await updateDoc(taskRef, {
-      sequence_task: sequenceLast
-    })
+    return await updateDoc(taskRef, parameters)
   }
 
   async getTaskById (

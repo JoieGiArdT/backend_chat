@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import { Response } from 'express'
 import * as winston from 'winston'
 
 /* const file = new winston.transports.File({
@@ -9,7 +9,6 @@ import * as winston from 'winston'
 
 export function unCoughtErrorHandler (
   err: any,
-  _req: Request,
   res: Response
 ): void {
   winston.error(JSON.stringify(err))
@@ -18,11 +17,9 @@ export function unCoughtErrorHandler (
 
 export function apiErrorHandler (
   err: any,
-  req: Request,
   res: Response,
   message: string
 ): void {
-  const error: object = { Message: message, Request: req, Stack: err }
-  winston.error(JSON.stringify(error))
-  res.json({ Message: message })
+  const error: object = { Message: message, Stack: String(err) }
+  res.status(500).json({ error })
 }

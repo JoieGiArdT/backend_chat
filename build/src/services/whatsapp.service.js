@@ -69,7 +69,7 @@ class WhatsappService {
             return Object.assign({ response_whatsapp: yield this.sendRequestMessage(data, fromPhoneNumberId, accessToken) }, baseInfo);
         });
     }
-    sendRequestMessage(data, fromPhoneNumberId, accessToken, version = 'v15.0') {
+    sendRequestMessage(data, fromPhoneNumberId, accessToken, version = 'v16.0') {
         var _a, _b, _c, _d, _e, _f, _g;
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -205,12 +205,28 @@ class WhatsappService {
         };
     }
     getMediaPayload(urlOrObjectId, options) {
-        // ...(isURL(urlOrObjectId) ? { link: urlOrObjectId } : { id: urlOrObjectId }),
         return {
             link: urlOrObjectId,
             caption: options === null || options === void 0 ? void 0 : options.caption,
             filename: options === null || options === void 0 ? void 0 : options.filename
         };
+    }
+    getMediaMessage(accessToken, objectId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const responseGetMedia = yield (0, axios_1.default)(`https://graph.facebook.com/v16.0/${objectId}`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            });
+            return yield (0, axios_1.default)(String(responseGetMedia.data.url), {
+                method: 'GET',
+                responseType: 'stream',
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            });
+        });
     }
 }
 exports.default = new WhatsappService();

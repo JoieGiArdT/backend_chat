@@ -14,9 +14,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const conversation_service_1 = require("../services/conversation.service");
 const message_service_1 = require("../services/message.service");
+const ninox_service_1 = require("../services/ninox.service");
 const task_service_1 = require("../services/task.service");
 const whatsapp_service_1 = __importDefault(require("../services/whatsapp.service"));
 const bot_util_1 = require("../utils/bot.util");
+const form_data_1 = __importDefault(require("form-data"));
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
+// import multer from 'multer'
 class WhatsappController {
     verifyToken({ query }, res) {
         try {
@@ -44,37 +49,73 @@ class WhatsappController {
                         ? 1
                         : (responseGetTaskById[0].data().sequence_task).length + 1),
                     response: body.messages[0]
-                }, (body.messages[0].type === 'text'
+                }, (body.messages[0].type === 'text' && responseGetTaskById[0] === undefined
                     ? body.messages[0][body.messages[0].type].body
-                    : (responseGetTaskById[0] === undefined
-                        ? 'No task'
-                        : responseGetTaskById[0].data().type_task)));
-                if (Object.entries(responseGetParameterForAnswerTask).length === 0) {
+                    : responseGetTaskById[0].data().type_task));
+                if (Object.entries(responseGetParameterForAnswerTask).length === 0 && responseGetTaskById[0] === undefined) {
                     res.send('ES UNA CONVERSACION');
                 }
-                else if (responseGetTaskById[0] === undefined) {
-                    void task_service_1.taskService.createTask(new task_service_1.SchemaTask(body.contacts[0].wa_id, body.messages[0][body.messages[0].type].body, [body.messages[0][body.messages[0].type].body]).task);
-                }
                 else {
-                    void task_service_1.taskService.updateTask(body.contacts[0].wa_id, (responseGetTaskById[0].data().sequence_task).push('Nuevo'));
+                    if (responseGetTaskById[0] === undefined) {
+                        void task_service_1.taskService.createTask(new task_service_1.SchemaTask(body.contacts[0].wa_id, body.messages[0][body.messages[0].type].body, [body.messages[0][body.messages[0].type].body]).task);
+                    }
+                    else {
+                        if (responseGetTaskById[0].data().status !== 'DONE' && responseGetParameterForAnswerTask.validation === 'approved') {
+                            const array = responseGetTaskById[0].data().sequence_task;
+                            array.push('nuevo');
+                            void task_service_1.taskService.updateTask(responseGetTaskById[0].id, {
+                                sequence_task: array,
+                                status: responseGetParameterForAnswerTask.status
+                            }); // Completar
+                        }
+                    }
+                    if (responseGetParameterForAnswerTask.response_type === 'wp') {
+                        whatsapp_service_1.default.sendMessageWhatsapp(responseGetParameterForAnswerTask.parameters, responseGetParameterForAnswerTask.type, '113492004941110', 'EAAFlbvoSH6YBAHUcEoW1XP6R0GHDbPk65JN3CD6ZC3W790woMrrCHqeex5PhCWuZCu0gmsoKDmu0lkdgkgqMcT1lNiYjPjbbbeLq4d0sysmU6lNkhBIIPVeO3ePkuaGqbAV7dfBL9ZAvCIKnkyFbeiM92ibS1UdzPnHTmMJkXIPFwDWeFObmiF86Dq6G5nlSqaFJsEBVQZDZD', body.messages[0].from)
+                            .then(() => {
+                            res.send('EVENT_RECEIVED');
+                        }).catch((error) => {
+                            res.status(400).send('ERROR: ENVIANDO RESPUESTA - ' + String(error));
+                        });
+                    }
+                    else {
+                        switch (responseGetTaskById[0].data().type_task) {
+                            case 'Subir imagenes': {
+                                whatsapp_service_1.default.getMediaMessage('EAAFlbvoSH6YBAHUcEoW1XP6R0GHDbPk65JN3CD6ZC3W790woMrrCHqeex5PhCWuZCu0gmsoKDmu0lkdgkgqMcT1lNiYjPjbbbeLq4d0sysmU6lNkhBIIPVeO3ePkuaGqbAV7dfBL9ZAvCIKnkyFbeiM92ibS1UdzPnHTmMJkXIPFwDWeFObmiF86Dq6G5nlSqaFJsEBVQZDZD', responseGetParameterForAnswerTask.id_image)
+                                    .then((image) => {
+                                    const fileName = String(responseGetParameterForAnswerTask.id_image) + '.' + String(image.headers['content-type'].substr(Number(image.headers['content-type'].indexOf('/')) + 1));
+                                    const localFilePath = path_1.default.resolve(__dirname, 'downloadFolder', fileName);
+                                    const w = image.data.pipe(fs_1.default.createWriteStream(localFilePath));
+                                    w.on('finish', () => {
+                                        const form = new form_data_1.default();
+                                        form.append(fileName, fs_1.default.createReadStream(localFilePath));
+                                        ninox_service_1.ninoxService.uploadImage(form)
+                                            .then(() => res.send('EVENT_RECEIVED'))
+                                            .catch((error) => {
+                                            throw new Error('ERROR: SUBIENDO IMAGEN - ' + String(error));
+                                        });
+                                    });
+                                })
+                                    .catch((error) => {
+                                    throw new Error('ERROR: ENVIANDO WP - ' + String(error));
+                                });
+                            }
+                        }
+                    }
                 }
-                whatsapp_service_1.default.sendMessageWhatsapp(responseGetParameterForAnswerTask.parameters, responseGetParameterForAnswerTask.type, '113492004941110', 'EAAFlbvoSH6YBANiz7c9R0mBCzt8nIvcpy1KVqTXtUyAARy3Wd7SH2oLMsZASKP8K0JB8nkZCXqJEOtBf7PKxFRRdbFW7X08zS7mSzlPEXsWEuaDfMw4jFUOAtWiBKXeXdT8hJR5JMeXyXZAVZC140ZB4Jmsgmv8oNTdSQ3x8LFZAQ55qpCzkAVIBNxE6EbDOjI1Ska5ZClrXQZDZD', body.messages[0].from)
-                    .then(() => {
-                    res.send('EVENT_RECEIVED');
-                }).catch((error) => {
-                    throw new Error('ERROR: ENVIANDO RESPUESTA - ' + String(error));
-                });
             }).catch((error) => {
-                throw new Error('ERROR: REVISION DE TASK PENDIENTES - ' + String(error));
+                res.status(400).send('ERROR: REVISION DE TASK PENDIENTES - ' + String(error));
             });
         }
         catch (error) {
             res.status(400).send('NOT_RECEIVED');
         }
     }
-    requestTypeTask({ body }) {
-        console.log(body);
+    /* requestTypeTask (body: any,
+      responseGetTaskById: any,
+      responseGetParameterForAnswerTask: any
+    ): void {
     }
+   */
     requestTypeConversation({ body }, res) {
         const id = body.contacts[0].wa_id;
         conversation_service_1.conversationService.getConversationById(id).then((responseGetConversationById) => {

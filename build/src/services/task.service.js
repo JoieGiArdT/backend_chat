@@ -27,12 +27,10 @@ class TaskService {
             }));
         });
     }
-    updateTask(id, sequenceLast) {
+    updateTask(id, parameters) {
         return __awaiter(this, void 0, void 0, function* () {
             const taskRef = (0, firestore_1.doc)(firebase_database_1.default.dataBase, 'tasks', id);
-            return yield (0, firestore_1.updateDoc)(taskRef, {
-                sequence_task: sequenceLast
-            });
+            return yield (0, firestore_1.updateDoc)(taskRef, parameters);
         });
     }
     getTaskById(id) {

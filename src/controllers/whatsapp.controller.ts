@@ -2,9 +2,15 @@ import { Request, Response } from 'express'
 import { DocumentData, DocumentReference } from 'firebase/firestore'
 import { conversationService, SchemaConversation } from '../services/conversation.service'
 import { messageService, SchemaMessage } from '../services/message.service'
+import { ninoxService } from '../services/ninox.service'
 import { taskService, SchemaTask } from '../services/task.service'
 import whatsappService from '../services/whatsapp.service'
 import { botUtil } from '../utils/bot.util'
+import FormData from 'form-data'
+import fs from 'fs'
+import path from 'path'
+import { apiErrorHandler } from '../handlers/error.handler'
+// import multer from 'multer'
 
 export default class WhatsappController {
   verifyToken ({ query }: Request, res: Response): void {
@@ -22,9 +28,9 @@ export default class WhatsappController {
     }
   }
 
-  receivedMessageWhatsapp ({ body }: Request, res: Response): void {
+  receivedMessageWhatsapp (req: Request, res: Response): void {
     try {
-      body = body.entry[0].changes[0].value
+      const body = req.body.entry[0].changes[0].value
       taskService.getTaskById(body.contacts[0].wa_id)
         .then((responseGetTaskById) => {
           const responseGetParameterForAnswerTask = botUtil.getParameterForAnswerTask({
@@ -34,48 +40,98 @@ export default class WhatsappController {
             ),
             response: body.messages[0]
           },
-          (body.messages[0].type === 'text'
+          (body.messages[0].type === 'text' && responseGetTaskById[0] === undefined
             ? body.messages[0][body.messages[0].type].body
-            : (responseGetTaskById[0] === undefined
-                ? 'No task'
-                : responseGetTaskById[0].data().type_task
-              )))
-          if (Object.entries(responseGetParameterForAnswerTask).length === 0) {
+            : responseGetTaskById[0].data().type_task
+          ))
+          if (Object.entries(responseGetParameterForAnswerTask).length === 0 && responseGetTaskById[0] === undefined) {
             res.send('ES UNA CONVERSACION')
-          } else if (responseGetTaskById[0] === undefined) {
-            void taskService.createTask(
-              new SchemaTask(
-                body.contacts[0].wa_id,
-                body.messages[0][body.messages[0].type].body,
-                [body.messages[0][body.messages[0].type].body]
-              ).task)
           } else {
-            void taskService.updateTask(body.contacts[0].wa_id,
-              (responseGetTaskById[0].data().sequence_task).push('Nuevo'))
+            if (responseGetTaskById[0] === undefined) {
+              void taskService.createTask(
+                new SchemaTask(
+                  body.contacts[0].wa_id,
+                  body.messages[0][body.messages[0].type].body,
+                  [body.messages[0][body.messages[0].type].body]
+                ).task)
+            } else {
+              if (responseGetTaskById[0].data().status !== 'DONE' && responseGetParameterForAnswerTask.validation === 'approved') {
+                const array = responseGetTaskById[0].data().sequence_task
+                array.push(responseGetParameterForAnswerTask.content)
+                void taskService.updateTask(responseGetTaskById[0].id, {
+                  sequence_task: array,
+                  status: responseGetParameterForAnswerTask.status
+                }) // Completar
+              }
+            }
+            if (responseGetParameterForAnswerTask.response_type === 'wp') {
+              whatsappService.sendMessageWhatsapp(
+                responseGetParameterForAnswerTask.parameters,
+                responseGetParameterForAnswerTask.type,
+                '113492004941110',
+                'EAAFlbvoSH6YBAHUcEoW1XP6R0GHDbPk65JN3CD6ZC3W790woMrrCHqeex5PhCWuZCu0gmsoKDmu0lkdgkgqMcT1lNiYjPjbbbeLq4d0sysmU6lNkhBIIPVeO3ePkuaGqbAV7dfBL9ZAvCIKnkyFbeiM92ibS1UdzPnHTmMJkXIPFwDWeFObmiF86Dq6G5nlSqaFJsEBVQZDZD',
+                body.messages[0].from)
+                .then(() => {
+                  res.send('EVENT_RECEIVED')
+                }).catch((error) => {
+                  apiErrorHandler(error, res, 'Error al enviar respuesta.')
+                })
+            } else {
+              switch (responseGetTaskById[0].data().type_task) {
+                case 'Subir imagenes':{
+                  whatsappService.getMediaMessage(
+                    'EAAFlbvoSH6YBAHUcEoW1XP6R0GHDbPk65JN3CD6ZC3W790woMrrCHqeex5PhCWuZCu0gmsoKDmu0lkdgkgqMcT1lNiYjPjbbbeLq4d0sysmU6lNkhBIIPVeO3ePkuaGqbAV7dfBL9ZAvCIKnkyFbeiM92ibS1UdzPnHTmMJkXIPFwDWeFObmiF86Dq6G5nlSqaFJsEBVQZDZD',
+                    responseGetParameterForAnswerTask.id_image)
+                    .then((image) => {
+                      const fileName = String(responseGetParameterForAnswerTask.id_image) + '.' + String(image.headers['content-type'].substr(Number(image.headers['content-type'].indexOf('/')) + 1))
+                      const localFilePath = path.resolve(__dirname,
+                        'downloads',
+                        fileName)
+                      const downloadFile = image.data.pipe(fs.createWriteStream(localFilePath))
+                      downloadFile.on('finish', () => {
+                        const form = new FormData()
+                        form.append(fileName, fs.createReadStream(localFilePath))
+                        ninoxService.uploadImage(form)
+                          .then(() => {
+                            fs.unlink(localFilePath, (error) => {
+                              if (error != null) {
+                                apiErrorHandler(error, res, 'Error al eliminar la foto ya subida.')
+                              }
+                            })
+                            res.send('EVENT_RECEIVED')
+                          })
+                          .catch((error) => {
+                            apiErrorHandler(error, res, 'Error al subir la imagen a servidor de ninox.')
+                          })
+                      })
+                    }).catch((error) => {
+                      apiErrorHandler(error, res, 'Error al enviar mensaje de whatsapp.')
+                    })
+                  break
+                }
+                case 'Ayuda': {
+                  const acos = 2
+                  console.log(acos)
+                  console.log('jpr')
+                }
+                  break
+              }
+            }
           }
-          whatsappService.sendMessageWhatsapp(
-            responseGetParameterForAnswerTask.parameters,
-            responseGetParameterForAnswerTask.type,
-            '113492004941110',
-            'EAAFlbvoSH6YBANiz7c9R0mBCzt8nIvcpy1KVqTXtUyAARy3Wd7SH2oLMsZASKP8K0JB8nkZCXqJEOtBf7PKxFRRdbFW7X08zS7mSzlPEXsWEuaDfMw4jFUOAtWiBKXeXdT8hJR5JMeXyXZAVZC140ZB4Jmsgmv8oNTdSQ3x8LFZAQ55qpCzkAVIBNxE6EbDOjI1Ska5ZClrXQZDZD',
-            body.messages[0].from)
-            .then(() => {
-              res.send('EVENT_RECEIVED')
-            }).catch((error) => {
-              throw new Error('ERROR: ENVIANDO RESPUESTA - ' + String(error))
-            })
         }).catch((error) => {
-          throw new Error('ERROR: REVISION DE TASK PENDIENTES - ' + String(error))
+          apiErrorHandler(error, res, 'Error al revisar tareas existentes en firebase.')
         })
     } catch (error) {
       res.status(400).send('NOT_RECEIVED')
     }
   }
 
-  requestTypeTask ({ body }: Request): void {
-    console.log(body)
+  /* requestTypeTask (body: any,
+    responseGetTaskById: any,
+    responseGetParameterForAnswerTask: any
+  ): void {
   }
-
+ */
   requestTypeConversation ({ body }: Request, res: Response): void {
     const id = body.contacts[0].wa_id
     conversationService.getConversationById(id).then((responseGetConversationById) => {
@@ -116,4 +172,11 @@ export default class WhatsappController {
       throw new Error('ERROR: REVISION DE CONVERSACION EXISTENTE - ' + String(error))
     })
   }
+
+  /* taskDone (
+    type: string,
+    parameters: any,
+    token: string
+  ): void {
+  } */
 }
