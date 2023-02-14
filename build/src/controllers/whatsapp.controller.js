@@ -21,6 +21,7 @@ const bot_util_1 = require("../utils/bot.util");
 const form_data_1 = __importDefault(require("form-data"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const error_handler_1 = require("../handlers/error.handler");
 // import multer from 'multer'
 class WhatsappController {
     verifyToken({ query }, res) {
@@ -39,9 +40,9 @@ class WhatsappController {
             res.status(400).send();
         }
     }
-    receivedMessageWhatsapp({ body }, res) {
+    receivedMessageWhatsapp(req, res) {
         try {
-            body = body.entry[0].changes[0].value;
+            const body = req.body.entry[0].changes[0].value;
             task_service_1.taskService.getTaskById(body.contacts[0].wa_id)
                 .then((responseGetTaskById) => {
                 const responseGetParameterForAnswerTask = bot_util_1.botUtil.getParameterForAnswerTask({
@@ -52,7 +53,8 @@ class WhatsappController {
                 }, (body.messages[0].type === 'text' && responseGetTaskById[0] === undefined
                     ? body.messages[0][body.messages[0].type].body
                     : responseGetTaskById[0].data().type_task));
-                if (Object.entries(responseGetParameterForAnswerTask).length === 0 && responseGetTaskById[0] === undefined) {
+                if (Object.entries(responseGetParameterForAnswerTask).length === 0 &&
+                    responseGetTaskById[0] === undefined) {
                     res.send('ES UNA CONVERSACION');
                 }
                 else {
@@ -62,7 +64,7 @@ class WhatsappController {
                     else {
                         if (responseGetTaskById[0].data().status !== 'DONE' && responseGetParameterForAnswerTask.validation === 'approved') {
                             const array = responseGetTaskById[0].data().sequence_task;
-                            array.push('nuevo');
+                            array.push(responseGetParameterForAnswerTask.content);
                             void task_service_1.taskService.updateTask(responseGetTaskById[0].id, {
                                 sequence_task: array,
                                 status: responseGetParameterForAnswerTask.status
@@ -74,7 +76,7 @@ class WhatsappController {
                             .then(() => {
                             res.send('EVENT_RECEIVED');
                         }).catch((error) => {
-                            res.status(400).send('ERROR: ENVIANDO RESPUESTA - ' + String(error));
+                            (0, error_handler_1.apiErrorHandler)(error, res, 'Error al enviar respuesta.');
                         });
                     }
                     else {
@@ -83,27 +85,43 @@ class WhatsappController {
                                 whatsapp_service_1.default.getMediaMessage('EAAFlbvoSH6YBAHUcEoW1XP6R0GHDbPk65JN3CD6ZC3W790woMrrCHqeex5PhCWuZCu0gmsoKDmu0lkdgkgqMcT1lNiYjPjbbbeLq4d0sysmU6lNkhBIIPVeO3ePkuaGqbAV7dfBL9ZAvCIKnkyFbeiM92ibS1UdzPnHTmMJkXIPFwDWeFObmiF86Dq6G5nlSqaFJsEBVQZDZD', responseGetParameterForAnswerTask.id_image)
                                     .then((image) => {
                                     const fileName = String(responseGetParameterForAnswerTask.id_image) + '.' + String(image.headers['content-type'].substr(Number(image.headers['content-type'].indexOf('/')) + 1));
-                                    const localFilePath = path_1.default.resolve(__dirname, 'downloadFolder', fileName);
-                                    const w = image.data.pipe(fs_1.default.createWriteStream(localFilePath));
-                                    w.on('finish', () => {
+                                    const localFilePath = path_1.default.resolve(__dirname, 'downloads', fileName);
+                                    const downloadFile = image.data.pipe(fs_1.default.createWriteStream(localFilePath));
+                                    downloadFile.on('finish', () => {
                                         const form = new form_data_1.default();
                                         form.append(fileName, fs_1.default.createReadStream(localFilePath));
                                         ninox_service_1.ninoxService.uploadImage(form)
-                                            .then(() => res.send('EVENT_RECEIVED'))
+                                            .then(() => {
+                                            fs_1.default.unlink(localFilePath, (error) => {
+                                                if (error != null) {
+                                                    (0, error_handler_1.apiErrorHandler)(error, res, 'Error al eliminar la foto ya subida.');
+                                                }
+                                            });
+                                            res.send('EVENT_RECEIVED');
+                                        })
                                             .catch((error) => {
-                                            throw new Error('ERROR: SUBIENDO IMAGEN - ' + String(error));
+                                            (0, error_handler_1.apiErrorHandler)(error, res, 'Error al subir la imagen a servidor de ninox.');
                                         });
                                     });
-                                })
-                                    .catch((error) => {
-                                    throw new Error('ERROR: ENVIANDO WP - ' + String(error));
+                                }).catch((error) => {
+                                    (0, error_handler_1.apiErrorHandler)(error, res, 'Error al enviar mensaje de whatsapp.');
                                 });
+                                break;
                             }
+                            case 'Ayuda':
+                                void ninox_service_1.ninoxService.createField([{
+                                        fields: {
+                                            Area: (responseGetTaskById[0].data().sequence_task)[1],
+                                            Numero: responseGetTaskById[0].data().external_id,
+                                            Descripcion: (responseGetTaskById[0].data().sequence_task)[2]
+                                        }
+                                    }]);
+                                break;
                         }
                     }
                 }
             }).catch((error) => {
-                res.status(400).send('ERROR: REVISION DE TASK PENDIENTES - ' + String(error));
+                (0, error_handler_1.apiErrorHandler)(error, res, 'Error al revisar tareas existentes en firebase.');
             });
         }
         catch (error) {

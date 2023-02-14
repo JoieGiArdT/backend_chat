@@ -10,7 +10,6 @@ import FormData from 'form-data'
 import fs from 'fs'
 import path from 'path'
 import { apiErrorHandler } from '../handlers/error.handler'
-// import multer from 'multer'
 
 export default class WhatsappController {
   verifyToken ({ query }: Request, res: Response): void {
@@ -42,9 +41,12 @@ export default class WhatsappController {
           },
           (body.messages[0].type === 'text' && responseGetTaskById[0] === undefined
             ? body.messages[0][body.messages[0].type].body
-            : responseGetTaskById[0].data().type_task
+            : (responseGetTaskById[0] === undefined
+                ? 'No task'
+                : responseGetTaskById[0].data().type_task)
           ))
-          if (Object.entries(responseGetParameterForAnswerTask).length === 0 && responseGetTaskById[0] === undefined) {
+          if (Object.entries(responseGetParameterForAnswerTask).length === 0 &&
+            responseGetTaskById[0] === undefined) {
             res.send('ES UNA CONVERSACION')
           } else {
             if (responseGetTaskById[0] === undefined) {
@@ -69,7 +71,7 @@ export default class WhatsappController {
                 responseGetParameterForAnswerTask.parameters,
                 responseGetParameterForAnswerTask.type,
                 '113492004941110',
-                'EAAFlbvoSH6YBAHUcEoW1XP6R0GHDbPk65JN3CD6ZC3W790woMrrCHqeex5PhCWuZCu0gmsoKDmu0lkdgkgqMcT1lNiYjPjbbbeLq4d0sysmU6lNkhBIIPVeO3ePkuaGqbAV7dfBL9ZAvCIKnkyFbeiM92ibS1UdzPnHTmMJkXIPFwDWeFObmiF86Dq6G5nlSqaFJsEBVQZDZD',
+                'EAAFlbvoSH6YBAIxeZA8BIkpZAkcx3VBFfZBzuMjpdFZBZAvHciUrItbH0RaxhVJzDnvKptDV9TvCvkXmu8BpfiJeWnCGZCMLVH8IlHTc0d7TyCKoalKA5KpFXBQrkaiw7UvCjnWFBPVaAZBYGcv2pZBe2SixKOuOZC10gtYcKeAutqUMa8nR9gZA9HoM9k1nH82o7FuHdXqbZBQ4QZDZD',
                 body.messages[0].from)
                 .then(() => {
                   res.send('EVENT_RECEIVED')
@@ -80,7 +82,7 @@ export default class WhatsappController {
               switch (responseGetTaskById[0].data().type_task) {
                 case 'Subir imagenes':{
                   whatsappService.getMediaMessage(
-                    'EAAFlbvoSH6YBAHUcEoW1XP6R0GHDbPk65JN3CD6ZC3W790woMrrCHqeex5PhCWuZCu0gmsoKDmu0lkdgkgqMcT1lNiYjPjbbbeLq4d0sysmU6lNkhBIIPVeO3ePkuaGqbAV7dfBL9ZAvCIKnkyFbeiM92ibS1UdzPnHTmMJkXIPFwDWeFObmiF86Dq6G5nlSqaFJsEBVQZDZD',
+                    'EAAFlbvoSH6YBAIxeZA8BIkpZAkcx3VBFfZBzuMjpdFZBZAvHciUrItbH0RaxhVJzDnvKptDV9TvCvkXmu8BpfiJeWnCGZCMLVH8IlHTc0d7TyCKoalKA5KpFXBQrkaiw7UvCjnWFBPVaAZBYGcv2pZBe2SixKOuOZC10gtYcKeAutqUMa8nR9gZA9HoM9k1nH82o7FuHdXqbZBQ4QZDZD',
                     responseGetParameterForAnswerTask.id_image)
                     .then((image) => {
                       const fileName = String(responseGetParameterForAnswerTask.id_image) + '.' + String(image.headers['content-type'].substr(Number(image.headers['content-type'].indexOf('/')) + 1))
@@ -109,11 +111,32 @@ export default class WhatsappController {
                     })
                   break
                 }
-                case 'Ayuda': {
-                  const acos = 2
-                  console.log(acos)
-                  console.log('jpr')
-                }
+                case 'Ayuda':
+                  ninoxService.createField(
+                    [{
+                      fields: {
+                        Departamento: (responseGetTaskById[0].data().sequence_task)[1],
+                        Numero: responseGetTaskById[0].data().external_id,
+                        Descripcion: (responseGetTaskById[0].data().sequence_task)[2]
+                      }
+                    }]
+                  )
+                    .then(() => {
+                      whatsappService.sendMessageWhatsapp(
+                        responseGetParameterForAnswerTask.parameters,
+                        responseGetParameterForAnswerTask.type,
+                        '113492004941110',
+                        'EAAFlbvoSH6YBAIxeZA8BIkpZAkcx3VBFfZBzuMjpdFZBZAvHciUrItbH0RaxhVJzDnvKptDV9TvCvkXmu8BpfiJeWnCGZCMLVH8IlHTc0d7TyCKoalKA5KpFXBQrkaiw7UvCjnWFBPVaAZBYGcv2pZBe2SixKOuOZC10gtYcKeAutqUMa8nR9gZA9HoM9k1nH82o7FuHdXqbZBQ4QZDZD',
+                        body.messages[0].from)
+                        .then(() => {
+                          res.send('EVENT_RECEIVED')
+                        }).catch((error) => {
+                          apiErrorHandler(error, res, 'Error al enviar respuesta.')
+                        })
+                    })
+                    .catch((error) => {
+                      apiErrorHandler(error, res, 'Error al crear registro en Ninox.')
+                    })
                   break
               }
             }

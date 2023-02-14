@@ -30,14 +30,13 @@ const winston = __importStar(require("winston"));
   level: 'error',
   handleExceptions: true
 }) */
-function unCoughtErrorHandler(err, _req, res) {
+function unCoughtErrorHandler(err, res) {
     winston.error(JSON.stringify(err));
     res.end({ error: err });
 }
 exports.unCoughtErrorHandler = unCoughtErrorHandler;
-function apiErrorHandler(err, req, res, message) {
-    const error = { Message: message, Request: req, Stack: err };
-    winston.error(JSON.stringify(error));
-    res.json({ Message: message });
+function apiErrorHandler(err, res, message) {
+    const error = { Message: message, Stack: String(err) };
+    res.status(500).json({ error });
 }
 exports.apiErrorHandler = apiErrorHandler;

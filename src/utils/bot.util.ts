@@ -57,7 +57,7 @@ class BotUtil {
       case 2:{
         let booleano = false
         Object.entries(parameters.response).forEach(([key, _value]) => {
-          if (key === 'list') {
+          if (key === 'interactive') {
             booleano = true
           }
         }
@@ -74,7 +74,7 @@ class BotUtil {
             response_type: 'wp',
             status: 'PENDING',
             validation: 'approved',
-            content: 'Lista'
+            content: 'Desocupacion'
           }
         } else {
           return {
@@ -108,7 +108,7 @@ class BotUtil {
               }
             },
             type: 'text',
-            response_type: 'wp',
+            response_type: 'nx',
             status: 'DONE',
             validation: 'approved',
             content: parameters.response.text.body
@@ -145,8 +145,8 @@ class BotUtil {
             bodyText: 'Seleccione el tipo de subida:',
             sections: {
               tipo: [{
-                id: 'DESO',
-                title: 'Desocupacion',
+                id: 'INV',
+                title: 'Inventario',
                 description: 'Seleccione esta opcion...'
               }]
             },
@@ -166,7 +166,7 @@ class BotUtil {
       case 2:{
         let booleano = false
         Object.entries(parameters.response).forEach(([key, _value]) => {
-          if (key === 'list') {
+          if (key === 'interactive') {
             booleano = true
           }
         }
@@ -183,7 +183,7 @@ class BotUtil {
             response_type: 'wp',
             status: 'PENDING',
             validation: 'approved',
-            content: 'Lista'
+            content: 'Desocupacion'
           }
         } else {
           return {

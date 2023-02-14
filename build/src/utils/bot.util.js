@@ -47,30 +47,30 @@ class BotUtil {
             }
             case 2: {
                 let booleano = false;
-                Object.entries(parameters.response).forEach(([key, value]) => {
-                    const objeto = value;
-                    if (key === 'text' && objeto.body === 'Subir') {
+                Object.entries(parameters.response).forEach(([key, _value]) => {
+                    if (key === 'list') {
                         booleano = true;
                     }
                 });
                 if (booleano) {
                     return {
                         parameters: {
-                            text: 'Digite el codigo del Inmueble',
+                            text: 'Describa su solicitud:',
                             options: {
                                 preview_url: false
                             }
                         },
                         type: 'text',
                         response_type: 'wp',
-                        status: 'PENDING',
-                        validation: 'approved'
+                        status: 'DONE',
+                        validation: 'approved',
+                        content: 'Desocupacion'
                     };
                 }
                 else {
                     return {
                         parameters: {
-                            text: 'Subir imagenes - Porfavor seleccione un tipo de subida.',
+                            text: 'Tickets - Porfavor seleccione un departamento.',
                             options: {
                                 preview_url: false
                             }
@@ -84,16 +84,15 @@ class BotUtil {
             }
             case 3: {
                 let booleano = false;
-                Object.entries(parameters.response).forEach(([key, value]) => {
-                    const objeto = value;
-                    if (key === 'text' && objeto.body === 'Subi') {
+                Object.entries(parameters.response).forEach(([key, _value]) => {
+                    if (key === 'text') {
                         booleano = true;
                     }
                 });
                 if (booleano) {
                     return {
                         parameters: {
-                            text: 'Las imagenes subidas a continuacion seran montadas al inmueble especificaso.',
+                            text: 'Su caso fue enviado al area seleccionada.',
                             options: {
                                 preview_url: false
                             }
@@ -101,13 +100,14 @@ class BotUtil {
                         type: 'text',
                         response_type: 'wp',
                         status: 'DONE',
-                        validation: 'approved'
+                        validation: 'approved',
+                        content: parameters.response.text.body
                     };
                 }
                 else {
                     return {
                         parameters: {
-                            text: 'Subir imagenes - Porfavor ingrese un codigo de inmueble.',
+                            text: 'Tickets - Porfavor simplemten escriba un parrafo donde describa su solicitud.',
                             options: {
                                 preview_url: false
                             }
@@ -118,46 +118,6 @@ class BotUtil {
                         validation: 'denied'
                     };
                 }
-            }
-            case 4: {
-                let booleano = true;
-                Object.entries(parameters.response).forEach(([key, value]) => {
-                    if (key === 'image' && value !== null) {
-                        booleano = false;
-                    }
-                });
-                if (booleano) {
-                    return {
-                        parameters: {
-                            text: 'Las imagenes subidas a continuacion seran montadas al inmueble especificaso.',
-                            options: {
-                                preview_url: false
-                            }
-                        },
-                        type: 'text',
-                        response_type: 'wp',
-                        status: 'DONE'
-                    };
-                }
-                else {
-                    return {
-                        id_image: parameters.response.image.id,
-                        response_type: 'nx'
-                    };
-                }
-            }
-            default: {
-                return {
-                    parameters: {
-                        text: 'Tarea - Subir imagenes activa.',
-                        options: {
-                            preview_url: false
-                        }
-                    },
-                    type: 'text',
-                    response_type: 'wp',
-                    status: 'PENDING'
-                };
             }
         }
     }
@@ -170,8 +130,8 @@ class BotUtil {
                         bodyText: 'Seleccione el tipo de subida:',
                         sections: {
                             tipo: [{
-                                    id: 'DESO',
-                                    title: 'Desocupacion',
+                                    id: 'INV',
+                                    title: 'Inventario',
                                     description: 'Seleccione esta opcion...'
                                 }]
                         },
@@ -190,9 +150,8 @@ class BotUtil {
             }
             case 2: {
                 let booleano = false;
-                Object.entries(parameters.response).forEach(([key, value]) => {
-                    const objeto = value;
-                    if (key === 'text' && objeto.body === 'Subir') {
+                Object.entries(parameters.response).forEach(([key, _value]) => {
+                    if (key === 'list') {
                         booleano = true;
                     }
                 });
@@ -207,7 +166,8 @@ class BotUtil {
                         type: 'text',
                         response_type: 'wp',
                         status: 'PENDING',
-                        validation: 'approved'
+                        validation: 'approved',
+                        content: 'Lista'
                     };
                 }
                 else {
@@ -228,8 +188,9 @@ class BotUtil {
             case 3: {
                 let booleano = false;
                 Object.entries(parameters.response).forEach(([key, value]) => {
+                    const isNumeric = (n) => !isNaN(n);
                     const objeto = value;
-                    if (key === 'text' && objeto.body === 'Subi') {
+                    if (key === 'text' && isNumeric(objeto.body)) {
                         booleano = true;
                     }
                 });
@@ -244,7 +205,8 @@ class BotUtil {
                         type: 'text',
                         response_type: 'wp',
                         status: 'DONE',
-                        validation: 'approved'
+                        validation: 'approved',
+                        content: parameters.response.text.body
                     };
                 }
                 else {
@@ -272,7 +234,7 @@ class BotUtil {
                 if (booleano) {
                     return {
                         parameters: {
-                            text: 'Las imagenes subidas a continuacion seran montadas al inmueble especificaso.',
+                            text: 'Las imagenes subidas a continuacion seran montadas al inmueble especificado.',
                             options: {
                                 preview_url: false
                             }
@@ -288,19 +250,6 @@ class BotUtil {
                         response_type: 'nx'
                     };
                 }
-            }
-            default: {
-                return {
-                    parameters: {
-                        text: 'Tarea - Subir imagenes activa.',
-                        options: {
-                            preview_url: false
-                        }
-                    },
-                    type: 'text',
-                    response_type: 'wp',
-                    status: 'PENDING'
-                };
             }
         }
     }
